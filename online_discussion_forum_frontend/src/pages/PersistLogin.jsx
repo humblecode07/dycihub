@@ -8,7 +8,7 @@ const PersistLogin = () => {
     const [isLoading, setIsLoading] = useState(true);
     const refresh = useRefreshToken();
     const { auth } = useAuth();
-    const [persist] = useLocalStorage('persist', false);
+    const [persist] = useLocalStorage('persist', true);
 
     useEffect(() => {
         let isMounted = true;
@@ -16,8 +16,6 @@ const PersistLogin = () => {
         const verifyRefreshToken = async () => {
             try {
                 await refresh();
-                console.log('refresh', await refresh())
-                localStorage.setItem('jwt', await refresh());
             } catch (err) {
                 console.error(err);
             } finally {

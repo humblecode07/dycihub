@@ -49,13 +49,6 @@ const Login = () => {
       const decodedToken = jwtDecode(accessToken);
       const { roles } = decodedToken;
 
-      // token saved into localstorage
-      localStorage.setItem("jwt", response.data.refreshToken)
-
-      const jwtToken = localStorage.getItem('jwt');
-
-      document.cookie = `jwt=${jwtToken}; path=/; SameSite=None; Secure`;
-
       setAuth({ email, accessToken });
       if (roles.includes("Admin")) {
         navigate('/admin/dashboard')
