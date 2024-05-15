@@ -79,6 +79,7 @@ const NavBar = ({ searchDisabled, searchType }) => {
           justifyContent: 'flex-start',
           backgroundColor: '#fff',
           boxShadow: '0px 2px 8px rgba(0,0,0,0.08)',
+          marginBottom: '20px'
         }}>
           <Stack direction={'column'}>
             <SearchBar setResults={setResults} searchDisabled={searchDisabled} searchType={searchType} />
