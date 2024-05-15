@@ -77,7 +77,7 @@ const NavBar = ({ searchDisabled, searchType }) => {
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'flex-start',
-          backgroundColor: '#fff',
+          backgroundColor: '#f2f2f2',
           boxShadow: '0px 2px 8px rgba(0,0,0,0.08)',
           marginBottom: '20px'
         }}>
