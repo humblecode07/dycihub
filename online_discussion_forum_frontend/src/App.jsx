@@ -9,11 +9,13 @@ import PersistLogin from './pages/PersistLogin';
 import Home from './pages/UserSide/Home';
 import Login from './pages/UserSide/Login';
 import StudentPage from './pages/UserSide/StudentPage';
+import StudentDashboard from './pages/UserSide/StudentDashboard';
 import StudentSettings from './pages/AdminSide/StudentSettings';
 import StudentThreads from './pages/UserSide/StudentThreads';
 import StudentComments from './pages/UserSide/StudentComments';
 
 import InstructorPage from './pages/InstructorSide/InstructorPage'
+import InstructorDashboard from './pages/InstructorSide/InstructorDashboard';
 import InstructorBulletin from './pages/InstructorSide/InstructorBulletin';
 import InstructorForums from './pages/InstructorSide/Forums';
 import InstructorThreads from './pages/InstructorSide/InstructorThreads';
@@ -64,6 +66,7 @@ const router = createBrowserRouter(
 
         <Route element={<RequireAuth allowedRoles={["Instructor"]} />}>
           <Route path='/instructor/' element={<InstructorPage />} >
+            <Route path='/instructor/dashboard' element={<InstructorDashboard />} />
             <Route path='/instructor/bulletin$board' element={<InstructorBulletin />} />
             <Route path='/instructor/forums' element={<InstructorForums />} />
             <Route path='/instructor/:forumId' element={<InstructorThreads />} />
@@ -80,6 +83,7 @@ const router = createBrowserRouter(
 
         <Route element={<RequireAuth allowedRoles={["Student"]} />}>
           <Route path='/client/' element={<StudentPage />}>
+            <Route path='/client/dashboard' element={<StudentDashboard />} />
             <Route path='/client/bulletin$board' element={<InstructorBulletin />} />
             <Route path='/client/forums' element={<InstructorForums />} />
             <Route path='/client/:forumId' element={<StudentThreads />} />

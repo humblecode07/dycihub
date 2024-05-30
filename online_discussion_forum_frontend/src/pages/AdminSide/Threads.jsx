@@ -10,6 +10,7 @@ import CreateThreads from '../../modals/CreateThreads';
 
 const Threads = () => {
   const [threads, setThreads] = useState([]);
+  const [sortOrder, setSortOrder] = useState('newToOld'); // State for sorting order
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,21 +20,10 @@ const Threads = () => {
     (async () => {
       try {
         await axiosPrivate.patch(`/forums/${forumId}/threads/${threadId}/checkView`);
-
       } catch (error) {
-        if (error.response) {
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          console.log(error.request);
-        } else {
-          console.log('Error', error.message);
-        }
-        console.log(error.config);
+        console.error(error);
       }
     })();
-
     navigate(`/admin/${forumId}/${threadId}/`);
   }
 
@@ -44,7 +34,7 @@ const Threads = () => {
         withCredentials: true
       });
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -64,37 +54,51 @@ const Threads = () => {
         commentCount: thread.commentCount,
         edited: thread.edited,
         pinned: thread.pinned,
-        timestamp: new Date(thread.timestamp).toLocaleDateString(),
+        timestamp: new Date(thread.timestamp).toLocaleString(),
         _id: thread._id,
       }));
-      setThreads(threadData);
+
+      // Sort threads based on the sortOrder state
+      const sortedThreads = threadData.sort((a, b) => {
+        return sortOrder === 'newToOld'
+          ? new Date(b.timestamp) - new Date(a.timestamp)
+          : new Date(a.timestamp) - new Date(b.timestamp);
+      });
+
+      setThreads(sortedThreads);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       navigate('/admin/login', { state: { from: location }, replace: true });
     }
   };
 
-  useEffect(() => {
-    fetchThreads(); // Trigger fetching of threads
-  }, [axiosPrivate, forumId, navigate, location]);
-
   console.log(threads)
 
+  useEffect(() => {
+    fetchThreads();
+  }, [axiosPrivate, forumId, navigate, location, sortOrder]);
+
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+  };
+
   return (
-    <Box
-      display={'flex'}
-      flexDirection={'column'}
-    >
-      <Stack direction={'row'} justifyContent={'flex-start'} sx={{
-        marginRight: '50px',
-        marginBottom: '20px'
-      }}>
-        <Typography variant="h5" sx={{
-          fontWeight: '700',
-          fontSize: '30px',
-          paddingRight: '60%'
-        }}>Threads List</Typography>
-        <CreateThreads />
+    <Box display={'flex'} flexDirection={'column'}>
+      <Stack direction={'row'} justifyContent={'space-between'} sx={{ marginBottom: '20px' }}>
+        <Typography variant="h5" sx={{ fontWeight: '700', fontSize: '30px' }}>
+          Threads List
+        </Typography>
+        <Stack direction={'row'} spacing={2}>
+          <CreateThreads />
+        </Stack>
+      </Stack>
+      <Stack direction={'row'} spacing={2} marginBottom={'20px'}>
+        <Button onClick={() => handleSortChange('newToOld')} variant={sortOrder === 'newToOld' ? 'contained' : 'outlined'}>
+          New to Old
+        </Button>
+        <Button onClick={() => handleSortChange('oldToNew')} variant={sortOrder === 'oldToNew' ? 'contained' : 'outlined'}>
+          Old to New
+        </Button>
       </Stack>
 
       {threads.length ? (
@@ -103,13 +107,11 @@ const Threads = () => {
             <Grid item key={thread._id} xs={12} sm={6} md={4} lg={3}>
               <Card sx={{ border: '1px solid #ccc', borderRadius: '8px', height: '200px', }}>
                 <Stack height={'100%'} direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                  <CardContent sx={{
-                    width: '45dvw'
-                  }} onClick={() => handleThreadClick(thread._id)} style={{ cursor: 'pointer' }}>
+                  <CardContent sx={{ width: '45dvw' }} onClick={() => handleThreadClick(thread._id)} style={{ cursor: 'pointer' }}>
                     <Stack direction={'row'} spacing={2}>
                       <Typography onClick={(e) => e.stopPropagation()}>{thread.username}</Typography> {/* Prevent navigation */}
                       <Typography>{thread.timestamp}</Typography>
-                      <Typography>{thread.edited === true ? 'edited' : ''}</Typography>
+                      <Typography>{thread.edited ? 'edited' : ''}</Typography>
                     </Stack>
                     <Typography variant="h6" sx={{
                       overflow: 'hidden',
@@ -118,18 +120,16 @@ const Threads = () => {
                       WebkitLineClamp: '2',
                       WebkitBoxOrient: 'vertical',
                     }}>{thread.title}</Typography>
-                    <Typography
-                      sx={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: '2',
-                        WebkitBoxOrient: 'vertical',
-                        fontFamily: 'Roboto',
-                        whiteSpace: 'pre-wrap', // Preserve whitespace and line breaks
-                        margin: 0, // Ensure no extra margin
-                      }}
-                    >
+                    <Typography sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: '2',
+                      WebkitBoxOrient: 'vertical',
+                      fontFamily: 'Roboto',
+                      whiteSpace: 'pre-wrap', // Preserve whitespace and line breaks
+                      margin: 0, // Ensure no extra margin
+                    }}>
                       {thread.content}
                     </Typography>
                     <Stack direction={'row'} spacing={2}>
@@ -149,8 +149,8 @@ const Threads = () => {
                       }} startIcon={<ThumbDownOffAltIcon />} sx={{
                         color: '#b01527',
                         '&:hover': {
-                            bgcolor: 'b01527',
-                            color: '#b01527'
+                          bgcolor: 'b01527',
+                          color: '#b01527'
                         }
                       }}><Typography>{thread.downvotes}</Typography></Button> {/* Prevent navigation */}
                       <Button startIcon={<CommentIcon />}><Typography>{thread.commentCount}</Typography></Button>

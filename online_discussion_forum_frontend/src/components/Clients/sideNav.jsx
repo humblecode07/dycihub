@@ -82,17 +82,20 @@ const SideNav = () => {
                                     <img src={imageData} alt="Firefly" style={{ borderRadius: '50%' }} />
                                 )}
                             </Avatar>
-                            <Typography  variant="h3" sx={{ paddingTop: '12px', fontFamily: 'Roboto', fontSize: '25px', fontWeight: 1000 }}>
+                            <Typography variant="h3" sx={{ paddingTop: '12px', fontFamily: 'Roboto', fontSize: '25px', fontWeight: 1000 }}>
                                 {userData && userData.user && userData.user.length > 0 && (
                                     userData.user[0].first_name + ' ' + userData.user[0].family_name
                                 )}
                             </Typography>
-                            <Typography  variant="body1">
+                            <Typography variant="body1">
                                 Student
                             </Typography>
                         </Stack>
                     )}
                     <Menu theme='light'>
+                        <Menu.Item key="dashboard" icon={<DashboardIcon />} >
+                            <Link to="/client/dashboard">Dashboard</Link>
+                        </Menu.Item>
                         <Menu.Item key="bulletin_board" icon={<FilterFramesIcon />}>
                             <Link to="/client/bulletin$board">Bulletin Board</Link>
                         </Menu.Item>

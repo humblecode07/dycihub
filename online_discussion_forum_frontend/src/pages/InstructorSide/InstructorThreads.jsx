@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react'
 import ForumDisplay from '../../components/forumDisplay';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CommentIcon from '@mui/icons-material/Comment';
 import { useLocation, useNavigate, useParams } from 'react-router-dom/dist/umd/react-router-dom.development';
 
 const InstructorThreads = () => {
   const [threads, setThreads] = useState([]);
+  const [sortOrder, setSortOrder] = useState('newToOld');
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,11 +65,16 @@ const InstructorThreads = () => {
         commentCount: thread.commentCount,
         edited: thread.edited,
         pinned: thread.pinned,
-        timestamp: new Date(thread.timestamp).toLocaleDateString(),
+        timestamp: new Date(thread.timestamp).toLocaleString(),
         _id: thread._id,
       }));
-      console.log(response.data)
-      setThreads(threadData);
+      const sortedThreads = threadData.sort((a, b) => {
+        return sortOrder === 'newToOld'
+          ? new Date(b.timestamp) - new Date(a.timestamp)
+          : new Date(a.timestamp) - new Date(b.timestamp);
+      });
+
+      setThreads(sortedThreads);
     } catch (error) {
       console.log(error);
       navigate('/admin/login', { state: { from: location }, replace: true });
@@ -77,9 +83,11 @@ const InstructorThreads = () => {
 
   useEffect(() => {
     fetchThreads(); // Trigger fetching of threads
-  }, [axiosPrivate, forumId, navigate, location]);
+  }, [axiosPrivate, forumId, navigate, location, sortOrder]);
 
-
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+  };
 
   return (
     <Box
@@ -87,6 +95,16 @@ const InstructorThreads = () => {
       flexDirection={'column'}
     >
       <ForumDisplay />
+      {threads.length ? (
+        <Stack direction={'row'} spacing={2} marginBottom={'20px'}>
+        <Button onClick={() => handleSortChange('newToOld')} variant={sortOrder === 'newToOld' ? 'contained' : 'outlined'}>
+          New to Old
+        </Button>
+        <Button onClick={() => handleSortChange('oldToNew')} variant={sortOrder === 'oldToNew' ? 'contained' : 'outlined'}>
+          Old to New
+        </Button>
+      </Stack>
+      ) : null }
       {threads.length ? (
         <Grid container spacing={2} direction={'column'} width={'55dvw'}>
           {threads.map((thread) => (
@@ -129,7 +147,13 @@ const InstructorThreads = () => {
                       <Button onClick={(e) => {
                         e.stopPropagation();
                         handleVote(thread._id, 'downvote');
-                      }} startIcon={<ThumbDownIcon />}><Typography>{thread.downvotes}</Typography></Button> {/* Prevent navigation */}
+                      }} startIcon={<ThumbDownOffAltIcon />} sx={{
+                        color: '#b01527',
+                        '&:hover': {
+                          bgcolor: 'b01527',
+                          color: '#b01527'
+                        }
+                      }}><Typography>{thread.downvotes}</Typography></Button> {/* Prevent navigation */}
                       <Button startIcon={<CommentIcon />}><Typography>{thread.commentCount}</Typography></Button>
                       <Button startIcon={<VisibilityIcon />}><Typography>{thread.viewCount}</Typography></Button>
                     </Stack>

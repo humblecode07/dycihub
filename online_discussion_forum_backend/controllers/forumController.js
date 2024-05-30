@@ -48,7 +48,6 @@ exports.forum_create = asyncHandler(async (req, res, next) => {
 
     let imageUUID = '';
 
-    console.log(req.file.originalname)
     if (req.file) {
         const originalFilename = req.file.originalname;
         const fileExtension = originalFilename.split('.').pop();
@@ -75,11 +74,7 @@ exports.forum_create = asyncHandler(async (req, res, next) => {
             console.error('Error reading file:', error);
             res.status(500).json({ message: "Failed to read file" });
         });
-    } else {
-        // Handle the case when no file is uploaded
-        console.error('No file uploaded');
-        res.status(400).json({ message: "No file uploaded" });
-    }
+    } 
 
     const creationTime = new Date();
 

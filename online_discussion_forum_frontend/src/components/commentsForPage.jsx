@@ -134,8 +134,6 @@ export function Comment({ _id, user, profile, content, upvotes, downvotes, image
         }
       }
 
-
-
     } catch (err) {
       console.log(err);
     }

@@ -1,18 +1,17 @@
-import React from 'react'
+import React from 'react';
 import { useRef, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import axios from '../../api/axios';
 import { Typography, Box, Button, TextField } from '@mui/material/';
 import useAuth from '../../hooks/useAuth';
 import Image from 'mui-image';
 import Carousel from 'react-material-ui-carousel';
-import yangalogo from '../image/yangaLogo.png'
-import photoOne from '../image/1.jpg'
-import photoTwo from '../image/2.jpg'
-import photoThree from '../image/3.jpg'
-import photoFour from '../image/4.jpg'
-import { jwtDecode } from 'jwt-decode';
-
+import yangalogo from '../image/yangaLogo.png';
+import photoOne from '../image/1.jpg';
+import photoTwo from '../image/2.jpg';
+import photoThree from '../image/3.jpg';
+import photoFour from '../image/4.jpg';
+import {jwtDecode} from 'jwt-decode';
 
 const LOGIN_URL = '/login';
 
@@ -29,18 +28,18 @@ const Login = () => {
 
   useEffect(() => {
     userRef.current.focus();
-  }, [])
+  }, []);
 
   useEffect(() => {
     setErrMsg('');
-  }, [email, pwd])
+  }, [email, pwd]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     try {
       const response = await axios.post(LOGIN_URL,
-        JSON.stringify({ email: email, password: pwd }), {
+        JSON.stringify({ email, password: pwd }), {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true
       });
@@ -48,31 +47,39 @@ const Login = () => {
       const accessToken = response.data.token;
       const decodedToken = jwtDecode(accessToken);
       const { roles } = decodedToken;
-
+      
       setAuth({ email, accessToken });
+      
       if (roles.includes("Admin")) {
-        navigate('/admin/dashboard')
+        navigate('/admin/dashboard');
       }
       else if (roles.includes("Instructor")) {
-        navigate('/instructor/bulletin$board');
+        navigate('/instructor/dashboard');
       } else if (roles.includes("Student")) {
-        navigate('/client');
+        navigate('/client/dashboard');
       } else {
         setErrMsg('Unknown role.');
       }
     } catch (err) {
       console.error(err);
-      setErrMsg('Error occurred while logging in.');
+      setErrMsg('Auth Failed.');
     }
-  }
+  };
 
   return (
-    <Box position={'relative'} display={'flex'} flexDirection={'row'} width={'100dvw'} height={'100dvh'}  overflow={'hidden'}>
+    <Box position={'relative'} display={'flex'} flexDirection={'row'} width={'100dvw'} height={'100dvh'} overflow={'hidden'}>
       <Box display={'flex'} flexDirection={'column'} width={'45dvw'} height={'100dvh'} justifyContent={'center'} alignItems={'center'} position={'absolute'} zIndex={2} bgcolor={'#f2f2f2'}>
-       <Image width={'100px'} height={'100px'} src={yangalogo} style={{
-        marginBottom: '50px'
-       }}/>
-      <Typography fontWeight={100} fontSize={'20px'} marginBottom={'20px'}>More than a School, a Family.</Typography>
+        <Image width={'100px'} height={'100px'} src={yangalogo} style={{
+          marginBottom: '50px'
+        }}/>
+        <Typography fontWeight={100} fontSize={'20px'} marginBottom={'20px'}>More than a School, a Family.</Typography>
+        
+        {errMsg && (
+          <Typography color="error" ref={errRef} aria-live="assertive" style={{ marginBottom: '20px' }}>
+            {errMsg}
+          </Typography>
+        )}
+
         <TextField
           id="email"
           label="Email"
@@ -90,7 +97,6 @@ const Login = () => {
                 borderRadius: '25px',
               },
               borderRadius: '25px',
-
             }
           }}
           value={email}
@@ -183,7 +189,7 @@ const Login = () => {
         </Carousel>
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

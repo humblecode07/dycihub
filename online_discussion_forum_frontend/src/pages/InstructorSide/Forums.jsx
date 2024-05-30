@@ -10,6 +10,7 @@ import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import { useLocation, useNavigate } from 'react-router-dom/dist/umd/react-router-dom.development';
 import useAuth from '../../hooks/useAuth';
 import { jwtDecode } from 'jwt-decode';
+import axios from '../../api/axios';
 
 const style = {
   position: 'absolute',
@@ -27,6 +28,7 @@ const style = {
 
 const InstructorForums = () => {
   const [forums, setForums] = useState();
+  const [sortOrder, setSortOrder] = useState('newToOld'); 
   const { auth } = useAuth();
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
@@ -67,7 +69,13 @@ const InstructorForums = () => {
           type: forum.type
         }));
 
-        isMounted && setForums(forumData);
+        const sortedThreads = forumData.sort((a, b) => {
+          return sortOrder === 'newToOld'
+            ? new Date(b.creationTime) - new Date(a.creationTime)
+            : new Date(a.creationTime) - new Date(b.creationTime);
+        });
+
+        isMounted && setForums(sortedThreads);
       } catch (err) {
         console.log(err)
         navigate('/admin/login', { state: { from: location }, replace: true });
@@ -80,7 +88,7 @@ const InstructorForums = () => {
       isMounted = false;
       controller.abort();
     }
-  }, []);
+  }, [axiosPrivate, sortOrder]);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -174,8 +182,9 @@ const InstructorForums = () => {
     }
   }
 
-  console.log('instructor id', decoded.userId)
-  console.log('instructor id', forums)
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+  };
 
   return (
     <Box display={'flex'} flexDirection={'column'} width={'70dvw'}>
@@ -186,6 +195,14 @@ const InstructorForums = () => {
             <CreateForum />
           </>
         ) : null}
+      </Stack>
+      <Stack direction={'row'} spacing={2} marginBottom={'20px'}>
+        <Button onClick={() => handleSortChange('newToOld')} variant={sortOrder === 'newToOld' ? 'contained' : 'outlined'}>
+          New to Old
+        </Button>
+        <Button onClick={() => handleSortChange('oldToNew')} variant={sortOrder === 'oldToNew' ? 'contained' : 'outlined'}>
+          Old to New
+        </Button>
       </Stack>
       {forums?.length ? (
         <Grid container spacing={2} direction={'column'} width={'70vw'}>

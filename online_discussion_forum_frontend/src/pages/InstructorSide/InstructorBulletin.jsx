@@ -24,6 +24,7 @@ const style = {
 
 const InstructorBulletin = () => {
   const [forums, setForums] = useState();
+  const [sortOrder, setSortOrder] = useState('newToOld');
   const { auth } = useAuth();
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
@@ -56,12 +57,18 @@ const InstructorBulletin = () => {
           image: forum.image,
           creatorId: forum.user,
           description: forum.description,
-          creationTime: new Date(forum.creationTime).toLocaleDateString(),
+          creationTime: new Date(forum.creationTime).toLocaleString(),
           threads: forum.threads,
           type: forum.type
         }));
-        console.log(forumData)
-        isMounted && setForums(forumData);
+        
+        const sortedThreads = forumData.sort((a, b) => {
+          return sortOrder === 'newToOld'
+            ? new Date(b.creationTime) - new Date(a.creationTime)
+            : new Date(a.creationTime) - new Date(b.creationTime);
+        });
+
+        isMounted && setForums(sortedThreads);
       } catch (err) {
         console.log(err)
         navigate('/admin/login', { state: { from: location }, replace: true });
@@ -74,7 +81,7 @@ const InstructorBulletin = () => {
       isMounted = false;
       controller.abort();
     }
-  }, []);
+  }, [sortOrder]);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const handleClick = (event, forumId) => {
@@ -162,7 +169,9 @@ const InstructorBulletin = () => {
     }
   }
 
-  console.log(forums)
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+  };
 
   return (
     <Box display={'flex'} flexDirection={'column'} width={'70dvw'}>
@@ -173,6 +182,15 @@ const InstructorBulletin = () => {
             <CreateBoard />
           </>
         ) : null}
+      </Stack>
+
+      <Stack direction={'row'} spacing={2} marginBottom={'20px'}>
+        <Button onClick={() => handleSortChange('newToOld')} variant={sortOrder === 'newToOld' ? 'contained' : 'outlined'}>
+          New to Old
+        </Button>
+        <Button onClick={() => handleSortChange('oldToNew')} variant={sortOrder === 'oldToNew' ? 'contained' : 'outlined'}>
+          Old to New
+        </Button>
       </Stack>
 
       {forums?.length ? (

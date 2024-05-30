@@ -133,11 +133,23 @@ const Dashboard = () => {
 
     const getTopTenThreads = async () => {
       try {
-        const response = await axiosPrivate.get(`/threads/topten`, {
+        const response = await axiosPrivate.get(`/forums/6643282dfa6095864f20fa43/threads/`, {
           signal: controller.signal
         });
-        const topTenThreads = response.data;
-        isMounted && setTopThreads(topTenThreads);
+
+        const recentAnnouncements = response.data;
+
+        console.log(recentAnnouncements)
+
+        if (recentAnnouncements && recentAnnouncements.thread.length > 0) {
+          const threadsToDisplay = recentAnnouncements.thread.length >= 3 ? recentAnnouncements.thread.slice(0, 3) : recentAnnouncements;
+
+          console.log(threadsToDisplay);
+
+          if (isMounted) {
+            setTopThreads(threadsToDisplay);
+          }
+        }
       }
       catch (error) {
         console.log(error);
@@ -156,6 +168,8 @@ const Dashboard = () => {
       isMounted = false;
     };
   }, [])
+
+  console.log(topThreads)
 
   return (
     <Box width={'55dvw'}>
@@ -259,11 +273,11 @@ const Dashboard = () => {
           fontWeight: '700',
           fontSize: '20px',
           marginTop: '20px'
-        }}>Top Ten Highest Post!</Typography>
+        }}>Recent Announcements</Typography>
       </Stack>
-      {topThreads?.topThreads?.length ? (
+      {topThreads?.length ? (
         <Grid container spacing={2} direction={'column'}>
-          {topThreads.topThreads.map((topThread) => {
+          {topThreads.map((topThread) => {
             return (
               <Grid item key={topThread._id} xs={12} sm={6} md={4} lg={3}>
                 <Card sx={{ border: '1px solid #ccc', borderRadius: '8px', height: '200px', }}>
@@ -305,9 +319,9 @@ const Dashboard = () => {
                       </Stack>
                     </CardContent>
                     <CardMedia
-                      component="img"
-                      style={{ borderRadius: '30px', height: '150px', width: '150px', objectFit: 'none', marginRight: '20px' }}
-                      image={topThread.image && topThread.image[0] ? `https://dycihub-api.vercel.app/images/${topThread.image[0]}` : 'https://fakeimg.pl/200x100/?retina=1&text=こんにちは&font=noto'}
+                          component="img"
+                          style={{ borderRadius: '30px', height: '150px', width: '150px', objectFit: 'none', marginRight: '20px' }}
+                          image={topThread.image && topThread.image[0] ? `https://dycihub-api.vercel.app/images/${topThread.image[0]}` : 'https://fakeimg.pl/200x100/?retina=1&text=こんにちは&font=noto'}
                     />
                   </Stack>
                 </Card>

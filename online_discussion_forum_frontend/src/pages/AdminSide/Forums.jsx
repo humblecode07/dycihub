@@ -25,7 +25,7 @@ const style = {
 
 const Forums = () => {
   const [forums, setForums] = useState();
-
+  const [sortOrder, setSortOrder] = useState('newToOld'); 
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,12 +50,20 @@ const Forums = () => {
           image: forum.image,
           creatorId: forum.user,
           description: forum.description,
-          creationTime: new Date(forum.creationTime).toLocaleDateString(),
+          creationTime: new Date(forum.creationTime).toLocaleString(),
           threads: forum.threads,
           type: forum.type
         }));
 
-        isMounted && setForums(forumData);
+        const sortedThreads = forumData.sort((a, b) => {
+          return sortOrder === 'newToOld'
+            ? new Date(b.creationTime) - new Date(a.creationTime)
+            : new Date(a.creationTime) - new Date(b.creationTime);
+        });
+
+        console.log(sortedThreads)
+
+        isMounted && setForums(sortedThreads);
       } catch (err) {
         console.log(err)
         navigate('/admin/login', { state: { from: location }, replace: true });
@@ -68,7 +76,7 @@ const Forums = () => {
       isMounted = false;
       controller.abort();
     }
-  }, []);
+  }, [axiosPrivate, sortOrder]);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -157,7 +165,9 @@ const Forums = () => {
     }
   }
 
-  console.log(forums)
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+  };
 
   return (
     <Box display={'flex'} flexDirection={'column'} width={'65dvw'}>
@@ -165,6 +175,14 @@ const Forums = () => {
         <Typography variant="h5" sx={{ fontWeight: '700', fontSize: '30px', paddingRight: '60%' }}>Forums List</Typography>
 
         <CreateForum />
+      </Stack>
+      <Stack direction={'row'} spacing={2} marginBottom={'20px'}>
+        <Button onClick={() => handleSortChange('newToOld')} variant={sortOrder === 'newToOld' ? 'contained' : 'outlined'}>
+          New to Old
+        </Button>
+        <Button onClick={() => handleSortChange('oldToNew')} variant={sortOrder === 'oldToNew' ? 'contained' : 'outlined'}>
+          Old to New
+        </Button>
       </Stack>
 
       {forums?.length ? (

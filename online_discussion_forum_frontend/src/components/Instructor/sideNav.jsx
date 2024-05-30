@@ -9,7 +9,7 @@ import Sider from 'antd/es/layout/Sider';
 import ForumIcon from '@mui/icons-material/Forum';
 import FilterFramesIcon from '@mui/icons-material/FilterFrames';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import AssessmentIcon from '@mui/icons-material/Assessment';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 const SideNav = () => {
   const { auth } = useAuth();
@@ -92,6 +92,9 @@ const SideNav = () => {
             </Stack>
           )}
           <Menu theme='light'>
+            <Menu.Item key="dashboard" icon={<DashboardIcon />} >
+              <Link to="/instructor/dashboard">Dashboard</Link>
+            </Menu.Item>
             <Menu.Item key="bulletin_board" icon={<FilterFramesIcon />}>
               <Link to="/instructor/bulletin$board">Bulletin Board</Link>
             </Menu.Item>

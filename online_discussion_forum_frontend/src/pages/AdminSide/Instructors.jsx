@@ -224,13 +224,6 @@ const Instructors = () => {
                                                     handleClose();
                                                     handleGoProfile(student._id);
                                                 }}>Check Profile</MenuItem>
-                                                {decoded.roles.includes('Admin') || decoded.userId === student._id ? (
-                                                    <MenuItem onClick={() => {
-                                                        handleClose();
-                                                        handleGoProfileSettings(student._id);
-                                                    }}>Edit Profile</MenuItem>
-                                                ) : ''}
-
                                             </Menu>
                                         </Box>
                                     </Stack>
